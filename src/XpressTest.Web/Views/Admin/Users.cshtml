@@ -1,0 +1,94 @@
+@model UserListViewModel
+@{
+    ViewData["Title"] = "Users";
+    var users = Model.Users;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Users <small class="text-muted fs-6">(@users.TotalCount)</small></h1>
+    <a asp-action="CreateUser" class="btn btn-sm btn-primary">New user</a>
+</div>
+
+<form asp-action="Users" method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input name="search" value="@Model.Search" class="form-control form-control-sm" placeholder="Email or name starts with…" aria-label="Search" />
+    </div>
+    <div class="col-md-3">
+        <select name="role" class="form-select form-select-sm" aria-label="Role">
+            <option value="">All roles</option>
+            @foreach (var role in new[] { XpressRoles.User, XpressRoles.Admin, XpressRoles.SuperAdmin })
+            {
+                <option value="@role" selected="@(Model.Role == role)">@role</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="isActive" class="form-select form-select-sm" aria-label="Status">
+            <option value="">Any status</option>
+            <option value="true" selected="@(Model.IsActive == true)">Active</option>
+            <option value="false" selected="@(Model.IsActive == false)">Deactivated</option>
+        </select>
+    </div>
+    <div class="col-md-2"><button type="submit" class="btn btn-sm btn-outline-secondary w-100">Filter</button></div>
+</form>
+
+<form id="bulk" asp-action="DeactivateMany" method="post"></form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr><th></th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var u in users.Items)
+            {
+                <tr>
+                    <td>
+                        @if (u.CanManage && u.IsActive)
+                        {
+                            <input type="checkbox" name="ids" value="@u.Id" form="bulk" class="form-check-input" aria-label="Select @u.Email" />
+                        }
+                    </td>
+                    <td>@u.FullName</td>
+                    <td>@u.Email</td>
+                    <td><span class="badge text-bg-secondary">@u.Role</span></td>
+                    <td>
+                        @if (u.IsActive) { <span class="badge text-bg-success">Active</span> }
+                        else { <span class="badge text-bg-danger">Deactivated</span> }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        @if (u.CanManage)
+                        {
+                            <a asp-action="EditUser" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form asp-action="@(u.IsActive ? "Deactivate" : "Activate")" asp-route-id="@u.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-warning">@(u.IsActive ? "Deactivate" : "Activate")</button>
+                            </form>
+                        }
+                        @if (u.CanDelete)
+                        {
+                            <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Permanently delete @u.Email? This cannot be undone.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <button type="submit" form="bulk" class="btn btn-sm btn-warning">Deactivate selected</button>
+    <nav class="d-flex align-items-center gap-2" aria-label="Pages">
+        @if (users.Page > 1)
+        {
+            <a asp-action="Users" asp-route-search="@Model.Search" asp-route-role="@Model.Role" asp-route-isActive="@Model.IsActive" asp-route-page="@(users.Page - 1)" class="btn btn-sm btn-outline-secondary">‹ Prev</a>
+        }
+        <span class="small">Page @users.Page of @users.TotalPages</span>
+        @if (users.Page < users.TotalPages)
+        {
+            <a asp-action="Users" asp-route-search="@Model.Search" asp-route-role="@Model.Role" asp-route-isActive="@Model.IsActive" asp-route-page="@(users.Page + 1)" class="btn btn-sm btn-outline-secondary">Next ›</a>
+        }
+    </nav>
+</div>

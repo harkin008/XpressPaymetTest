@@ -1,0 +1,77 @@
+@model OrderListViewModel
+@{
+    ViewData["Title"] = Model.ShowCustomer ? "All orders" : "My orders";
+    var orders = Model.Orders;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@ViewData["Title"] <small class="text-muted fs-6">(@orders.TotalCount)</small></h1>
+    <div class="d-flex gap-2">
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <select name="status" class="form-select form-select-sm" aria-label="Filter by status" onchange="this.form.submit()">
+                <option value="">All statuses</option>
+                @foreach (var status in OrderStatuses.All)
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+            <noscript><button class="btn btn-sm btn-outline-secondary">Filter</button></noscript>
+        </form>
+        <a asp-action="Create" class="btn btn-sm btn-primary text-nowrap">New order</a>
+    </div>
+</div>
+
+@if (orders.Items.Count == 0)
+{
+    <div class="text-center text-muted py-5 border rounded">
+        <p class="mb-2">@(Model.Status is null ? "No orders yet." : $"No {Model.Status.ToLowerInvariant()} orders.")</p>
+        <a asp-action="Create" class="btn btn-primary btn-sm">Place your first order</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    @if (Model.ShowCustomer) { <th>Customer</th> }
+                    <th>Product</th>
+                    <th class="text-end">Qty</th>
+                    <th class="text-end">Total</th>
+                    <th>Status</th>
+                    <th>Placed (UTC)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in orders.Items)
+                {
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@o.Id">#@o.Id</a></td>
+                        @if (Model.ShowCustomer)
+                        {
+                            <td>@o.CustomerName<br /><small class="text-muted">@o.CustomerEmail</small></td>
+                        }
+                        <td>@o.ProductName</td>
+                        <td class="text-end">@o.Quantity</td>
+                        <td class="text-end">@o.Total.ToString("0.00")</td>
+                        <td><partial name="_StatusBadge" model="o.Status" /></td>
+                        <td>@o.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="d-flex justify-content-end align-items-center gap-2" aria-label="Pages">
+        @if (orders.Page > 1)
+        {
+            <a asp-action="Index" asp-route-status="@Model.Status" asp-route-page="@(orders.Page - 1)" class="btn btn-sm btn-outline-secondary">‹ Prev</a>
+        }
+        <span class="small">Page @orders.Page of @orders.TotalPages</span>
+        @if (orders.Page < orders.TotalPages)
+        {
+            <a asp-action="Index" asp-route-status="@Model.Status" asp-route-page="@(orders.Page + 1)" class="btn btn-sm btn-outline-secondary">Next ›</a>
+        }
+    </nav>
+}

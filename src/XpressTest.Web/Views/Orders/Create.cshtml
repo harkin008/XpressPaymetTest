@@ -1,0 +1,16 @@
+@model OrderFormViewModel
+@{
+    ViewData["Title"] = "New order";
+}
+
+<div class="col-md-7 col-lg-6">
+    <h1 class="h3 mb-3">New order</h1>
+    <form asp-action="Create" method="post">
+        <partial name="_OrderFields" />
+        <button type="submit" class="btn btn-primary">Place order</button>
+        <a asp-action="Index" class="btn btn-link">Cancel</a>
+    </form>
+    <p class="form-text mt-3">You'll get a confirmation email. To prevent abuse, you can place up to 3 orders per minute.</p>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

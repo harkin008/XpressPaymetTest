@@ -1,0 +1,17 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>@Model.Title</h2>
+<p class="text-danger">@Model.Message</p>
+
+@if (Model.ShowRequestId)
+{
+    <p class="text-muted small">
+        Error @Model.StatusCode · Request ID <code>@Model.RequestId</code>
+    </p>
+}
+
+<a href="javascript:history.back()" class="btn btn-outline-secondary">Go back</a>
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary ms-2">Home</a>

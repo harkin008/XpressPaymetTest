@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2>Dashboard</h2>
+<p>Welcome, @User.Identity?.Name. Every signed-in user can see this page.</p>
+
+<div class="list-group col-md-6">
+    <a class="list-group-item list-group-item-action" asp-action="AdminReports">Admin reports <small class="text-muted">(Admin, SuperAdmin)</small></a>
+    <a class="list-group-item list-group-item-action" asp-controller="Users" asp-action="Index">Manage users <small class="text-muted">(Admin, SuperAdmin)</small></a>
+    <a class="list-group-item list-group-item-action" asp-action="SystemSettings">System settings <small class="text-muted">(SuperAdmin)</small></a>
+</div>
+<p class="text-muted small mt-2">Links are shown to everyone on purpose so you can see the server reject unauthorized roles.</p>

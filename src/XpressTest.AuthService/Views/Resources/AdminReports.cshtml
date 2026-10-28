@@ -1,0 +1,28 @@
+@using XpressTest.AuthService.Data.Queries
+@model DashboardStats
+@{
+    ViewData["Title"] = "Admin reports";
+}
+
+<h2>Admin reports</h2>
+<p>Restricted to <strong>Admin</strong> and <strong>SuperAdmin</strong>.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Total users</div><div class="fs-3">@Model.Total</div></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Active</div><div class="fs-3 text-success">@Model.Active</div></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Deactivated</div><div class="fs-3 text-danger">@Model.Inactive</div></div></div></div>
+</div>
+
+<table class="table table-sm col-md-6">
+    <thead><tr><th>Role</th><th class="text-end">Active</th><th class="text-end">Deactivated</th></tr></thead>
+    <tbody>
+        @foreach (var group in Model.Breakdown.GroupBy(b => b.Role ?? "(no role)"))
+        {
+            <tr>
+                <td>@group.Key</td>
+                <td class="text-end">@group.Where(b => b.IsActive).Sum(b => b.Count)</td>
+                <td class="text-end">@group.Where(b => !b.IsActive).Sum(b => b.Count)</td>
+            </tr>
+        }
+    </tbody>
+</table>

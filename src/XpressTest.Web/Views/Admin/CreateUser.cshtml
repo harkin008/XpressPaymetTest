@@ -1,0 +1,38 @@
+@model CreateUserViewModel
+@{
+    ViewData["Title"] = "New user";
+}
+
+<div class="col-md-7 col-lg-6">
+    <h1 class="h3 mb-3">New user</h1>
+    <form asp-action="CreateUser" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" autofocus />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">Temporary password</label>
+            <input asp-for="Password" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Role" class="form-label"></label>
+            <select asp-for="Role" asp-items="@(new SelectList(Model.AssignableRoles))" class="form-select"></select>
+            @if (Model.AssignableRoles.Count == 1)
+            {
+                <div class="form-text">Only SuperAdmins can create Admins.</div>
+            }
+        </div>
+        <button type="submit" class="btn btn-primary">Create user</button>
+        <a asp-action="Users" class="btn btn-link">Cancel</a>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

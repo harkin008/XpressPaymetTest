@@ -1,0 +1,56 @@
+@model IReadOnlyList<ApiKeyListItemViewModel>
+@{
+    ViewData["Title"] = "API keys";
+}
+
+<h2>API keys</h2>
+<p>
+    Exchange a key for a short-lived access token, then call the Order service with
+    <code>Authorization: Bearer &lt;token&gt;</code>. Every key you own shares your rate limit.
+</p>
+<pre class="small bg-light p-2"><code>curl -X POST @(Context.Request.Scheme)://@(Context.Request.Host)/connect/token \
+  -d grant_type=@ApiKeyDefaults.GrantType -d api_key=&lt;your key&gt;</code></pre>
+
+@if (TempData["NewApiKey"] is string newKey)
+{
+    <div class="alert alert-warning">
+        <strong>Copy your new key now.</strong> It will not be shown again.
+        <pre class="mb-0 mt-2"><code>@newKey</code></pre>
+    </div>
+}
+
+<form asp-action="Create" method="post" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <input name="name" class="form-control" maxlength="100" placeholder="Key name, e.g. Integration server" />
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Create key</button>
+    </div>
+</form>
+
+<table class="table align-middle">
+    <thead><tr><th>Name</th><th>Key</th><th>Created (UTC)</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var key in Model)
+        {
+            <tr>
+                <td>@key.Name</td>
+                <td><code>@key.Prefix…</code></td>
+                <td>@key.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    @if (key.RevokedAtUtc is null) { <span class="badge bg-success">Active</span> }
+                    else { <span class="badge bg-secondary">Revoked</span> }
+                </td>
+                <td class="text-end">
+                    @if (key.RevokedAtUtc is null)
+                    {
+                        <form asp-action="Revoke" asp-route-id="@key.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('Revoke @key.Name? Clients using it will get 401.');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Revoke</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

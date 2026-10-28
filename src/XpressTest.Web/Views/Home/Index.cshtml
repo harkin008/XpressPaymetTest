@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var isAdmin = User.IsInRole(XpressRoles.Admin) || User.IsInRole(XpressRoles.SuperAdmin);
+}
+
+<div class="p-4 p-md-5 mb-4 bg-body-tertiary rounded-3">
+    <h1 class="display-6 fw-semibold">Order anything, track everything.</h1>
+    @if (signedIn)
+    {
+        <p class="lead">Welcome back, @User.Identity!.Name.</p>
+        <a class="btn btn-primary" asp-controller="Orders" asp-action="Create">Place an order</a>
+        <a class="btn btn-outline-secondary" asp-controller="Orders" asp-action="Index">@(isAdmin ? "All orders" : "My orders")</a>
+        @if (isAdmin)
+        {
+            <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Admin dashboard</a>
+        }
+    }
+    else
+    {
+        <p class="lead">Create an account to place orders and get an email whenever their status changes.</p>
+        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Create an account</a>
+        <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Login">Sign in</a>
+    }
+</div>

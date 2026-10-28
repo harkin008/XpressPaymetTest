@@ -1,0 +1,16 @@
+@model OrderFormViewModel
+@{
+    var order = (OrderDto)ViewData["Order"]!;
+    ViewData["Title"] = $"Edit order #{order.Id}";
+}
+
+<div class="col-md-7 col-lg-6">
+    <h1 class="h3 mb-3">Edit order #@order.Id <partial name="_StatusBadge" model="order.Status" /></h1>
+    <form asp-action="Edit" asp-route-id="@order.Id" method="post">
+        <partial name="_OrderFields" />
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-link">Cancel</a>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

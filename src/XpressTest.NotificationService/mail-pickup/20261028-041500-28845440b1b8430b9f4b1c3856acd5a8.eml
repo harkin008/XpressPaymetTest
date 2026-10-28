@@ -1,0 +1,32 @@
+From: Xpress Orders <orders@xpress.local>
+Date: Wed, 28 Oct 2026 05:15:00 +0100
+Subject: Order #2 received
+Message-Id: <SYDLFI6JOUU4.GMID60DKS0KT3@moses>
+To: Default User <user@xpress.local>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="=-MeK09R/3MLv6JOxmUxWdlQ=="
+
+--=-MeK09R/3MLv6JOxmUxWdlQ==
+Content-Type: text/plain; charset=utf-8
+
+Hi Default User,
+
+Thanks for your order #2.
+
+1 x Cloth @ 700.00
+Total: 700.00
+
+We'll email you when its status changes.
+--=-MeK09R/3MLv6JOxmUxWdlQ==
+Content-Type: text/html; charset=utf-8
+
+<p>Hi Default User,</p>
+<p>Thanks for your order <strong>#2</strong>.</p>
+<table cellpadding="4">
+  <tr><td>Product</td><td>Cloth</td></tr>
+  <tr><td>Quantity</td><td>1</td></tr>
+  <tr><td>Unit price</td><td>700.00</td></tr>
+  <tr><td><strong>Total</strong></td><td><strong>700.00</strong></td></tr>
+</table>
+<p>We'll email you when its status changes.</p>
+--=-MeK09R/3MLv6JOxmUxWdlQ==--

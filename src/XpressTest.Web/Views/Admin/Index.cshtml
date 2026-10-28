@@ -1,0 +1,57 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Admin dashboard";
+}
+
+<h1 class="h3 mb-4">Dashboard</h1>
+
+<h2 class="h6 text-uppercase text-muted">Orders</h2>
+@if (Model.Orders is { } orders)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md">
+            <a asp-controller="Orders" asp-action="Index" class="card text-decoration-none h-100">
+                <div class="card-body"><div class="text-muted small">Total</div><div class="fs-3">@orders.Total</div></div>
+            </a>
+        </div>
+        @foreach (var (status, count) in orders.ByStatus)
+        {
+            <div class="col-6 col-md">
+                <a asp-controller="Orders" asp-action="Index" asp-route-status="@status" class="card text-decoration-none h-100">
+                    <div class="card-body"><div class="small"><partial name="_StatusBadge" model="status" /></div><div class="fs-3">@count</div></div>
+                </a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-danger">Order statistics are unavailable right now.</p>
+}
+
+<h2 class="h6 text-uppercase text-muted">Users</h2>
+@if (Model.Users is { } users)
+{
+    <div class="row g-3 mb-3">
+        <div class="col-4"><div class="card"><div class="card-body"><div class="text-muted small">Total</div><div class="fs-3">@users.Total</div></div></div></div>
+        <div class="col-4"><div class="card"><div class="card-body"><div class="text-muted small">Active</div><div class="fs-3 text-success">@users.Active</div></div></div></div>
+        <div class="col-4"><div class="card"><div class="card-body"><div class="text-muted small">Deactivated</div><div class="fs-3 text-danger">@users.Inactive</div></div></div></div>
+    </div>
+    <table class="table table-sm w-auto">
+        <thead><tr><th>Role</th><th class="text-end">Active</th><th class="text-end">Deactivated</th></tr></thead>
+        <tbody>
+            @foreach (var group in users.Breakdown.GroupBy(b => b.Role ?? "(no role)"))
+            {
+                <tr>
+                    <td><a asp-action="Users" asp-route-role="@group.Key">@group.Key</a></td>
+                    <td class="text-end">@group.Where(b => b.IsActive).Sum(b => b.Count)</td>
+                    <td class="text-end">@group.Where(b => !b.IsActive).Sum(b => b.Count)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-danger">User statistics are unavailable right now.</p>
+}

@@ -1,0 +1,80 @@
+@model OrderDetailsViewModel
+@{
+    var o = Model.Order;
+    ViewData["Title"] = $"Order #{o.Id}";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">@(Model.IsAdmin ? "All orders" : "My orders")</a></li>
+        <li class="breadcrumb-item active" aria-current="page">#@o.Id</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="h4 mb-0">Order #@o.Id</h1>
+                    <partial name="_StatusBadge" model="o.Status" />
+                </div>
+                <dl class="row mb-0">
+                    @if (Model.IsAdmin)
+                    {
+                        <dt class="col-sm-4">Customer</dt>
+                        <dd class="col-sm-8">@o.CustomerName &lt;@o.CustomerEmail&gt;</dd>
+                    }
+                    <dt class="col-sm-4">Product</dt>
+                    <dd class="col-sm-8">@o.ProductName</dd>
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@o.Quantity</dd>
+                    <dt class="col-sm-4">Unit price</dt>
+                    <dd class="col-sm-8">@o.UnitPrice.ToString("0.00")</dd>
+                    <dt class="col-sm-4">Total</dt>
+                    <dd class="col-sm-8 fw-semibold">@o.Total.ToString("0.00")</dd>
+                    <dt class="col-sm-4">Placed (UTC)</dt>
+                    <dd class="col-sm-8">@o.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm")</dd>
+                    <dt class="col-sm-4">Last updated (UTC)</dt>
+                    <dd class="col-sm-8">@o.UpdatedAtUtc.ToString("yyyy-MM-dd HH:mm")</dd>
+                </dl>
+            </div>
+            @if (Model.CanEdit || Model.CanCancel)
+            {
+                <div class="card-footer d-flex gap-2">
+                    @if (Model.CanEdit)
+                    {
+                        <a asp-action="Edit" asp-route-id="@o.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    }
+                    @if (Model.CanCancel)
+                    {
+                        <form asp-action="Cancel" asp-route-id="@o.Id" method="post" onsubmit="return confirm('Cancel order #@o.Id?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancel order</button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.IsAdmin)
+    {
+        <div class="col-lg-5">
+            <div class="card border-dark">
+                <div class="card-body">
+                    <h2 class="h6">Change status</h2>
+                    <p class="small text-muted">The customer is emailed about every status change.</p>
+                    <form asp-action="ChangeStatus" asp-route-id="@o.Id" method="post" class="d-flex gap-2">
+                        <select name="status" class="form-select form-select-sm" aria-label="New status">
+                            @foreach (var status in OrderStatuses.All)
+                            {
+                                <option value="@status" selected="@(status == o.Status)">@status</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-dark">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

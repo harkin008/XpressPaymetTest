@@ -1,0 +1,103 @@
+@model UserListViewModel
+@{
+    ViewData["Title"] = "Manage users";
+    var f = Model.Filter;
+    object PageRoute(int page) => new { f.Search, f.Role, f.IsActive, Page = page, f.PageSize };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Users <small class="text-muted fs-6">(@Model.TotalCount)</small></h2>
+    <a asp-action="Create" class="btn btn-primary">Create user</a>
+</div>
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input name="Search" value="@f.Search" class="form-control" placeholder="Email or name starts with…" />
+    </div>
+    <div class="col-md-3">
+        <select name="Role" class="form-select">
+            <option value="">All roles</option>
+            @foreach (var role in AppRoles.All)
+            {
+                <option value="@role" selected="@(f.Role == role)">@role</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="IsActive" class="form-select">
+            <option value="">Any status</option>
+            <option value="true" selected="@(f.IsActive == true)">Active</option>
+            <option value="false" selected="@(f.IsActive == false)">Deactivated</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+    </div>
+</form>
+
+@* Checkboxes reference this form via form="bulk" so they can sit inside the table next to the per-row forms. *@
+<form id="bulk" asp-action="BulkDeactivate" method="post"></form>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr><th></th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="text-end">Actions</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model.Items)
+        {
+            <tr>
+                <td>
+                    @if (u.CanManage && u.IsActive)
+                    {
+                        <input type="checkbox" name="ids" value="@u.Id" form="bulk" class="form-check-input" aria-label="Select @u.Email" />
+                    }
+                </td>
+                <td>@u.FullName</td>
+                <td>@u.Email</td>
+                <td><span class="badge bg-secondary">@u.Role</span></td>
+                <td>
+                    @if (u.IsActive) { <span class="badge bg-success">Active</span> }
+                    else { <span class="badge bg-danger">Deactivated</span> }
+                </td>
+                <td class="text-end">
+                    @if (u.CanManage)
+                    {
+                        <a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form asp-action="@(u.IsActive ? "Deactivate" : "Activate")" asp-route-id="@u.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-warning">@(u.IsActive ? "Deactivate" : "Activate")</button>
+                        </form>
+                    }
+                    @if (u.CanDelete)
+                    {
+                        <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('Permanently delete @u.Email?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-between align-items-center">
+    <button type="submit" form="bulk" class="btn btn-sm btn-warning">Deactivate selected</button>
+    <nav class="d-flex align-items-center gap-2">
+        @if (Model.Page > 1)
+        {
+            <a asp-action="Index" asp-all-route-data="@ToRoute(PageRoute(Model.Page - 1))" class="btn btn-sm btn-outline-secondary">‹ Prev</a>
+        }
+        <span>Page @Model.Page of @Model.TotalPages</span>
+        @if (Model.Page < Model.TotalPages)
+        {
+            <a asp-action="Index" asp-all-route-data="@ToRoute(PageRoute(Model.Page + 1))" class="btn btn-sm btn-outline-secondary">Next ›</a>
+        }
+    </nav>
+</div>
+
+@functions {
+    private static Dictionary<string, string> ToRoute(object values) =>
+        new RouteValueDictionary(values)
+            .Where(kv => kv.Value is not null && kv.Value.ToString() != "")
+            .ToDictionary(kv => kv.Key, kv => kv.Value!.ToString()!);
+}

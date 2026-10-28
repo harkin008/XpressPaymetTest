@@ -1,0 +1,94 @@
+﻿@{
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var isAdmin = User.IsInRole(XpressRoles.Admin) || User.IsInRole(XpressRoles.SuperAdmin);
+    var role = User.IsInRole(XpressRoles.SuperAdmin) ? "SuperAdmin" : User.IsInRole(XpressRoles.Admin) ? "Admin" : "User";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Xpress Orders</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/XpressTest.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-semibold" asp-controller="Home" asp-action="Index">Xpress Orders</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+                        aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="nav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto">
+                        @if (signedIn)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="Index">@(isAdmin ? "All orders" : "My orders")</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="Create">New order</a></li>
+                        }
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Users</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav align-items-sm-center">
+                        @if (signedIn)
+                        {
+                            <li class="nav-item">
+                                <span class="navbar-text me-2">@User.Identity!.Name <span class="badge text-bg-secondary">@role</span></span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-light">Sign out</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Sign in</a></li>
+                            <li class="nav-item"><a class="btn btn-sm btn-primary ms-sm-2" asp-controller="Account" asp-action="Register">Register</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @if (TempData["Message"] is string message)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="status">
+                    @message
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] is string error)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">&copy; 2026 Xpress Orders</div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
